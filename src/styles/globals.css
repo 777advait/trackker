@@ -1,7 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+@font-face {
+  font-family: "Labil Grotesk";
+  src: url("/fonts/LabilGrotesk-Medium.ttf");
+  font-weight: 500;
+}
+
+:root {
+  --font-labil-grotesk: "Labil Grotesk", sans-serif;
+}
+
 @layer base {
   :root {
     --background: 0 0% 5%;
@@ -26,7 +36,7 @@
     --radius: 0.5rem;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
