@@ -96,7 +96,7 @@ export default function Page() {
         </div>
       </div>
       <div className="project w-[65%]">
-        <h3 className="mt-40 ml-10 font-bold text-[#ffffffe6]text-[#ffffffe6] text-xl">Your Project</h3>
+        <h3 className="mt-32 ml-10 font-bold text-[#ffffffe6]text-[#ffffffe6] text-xl">Your Project</h3>
         <div className="project mt-5 ml-10 grid grid-cols-4 gap-[300px]">
           <div className="1 w-[300px] h-[180px] border  border-white rounded-xl ">
             <div className="flex justify-between items-center px-3 pt-3 text-[#ffffffe6]" >
