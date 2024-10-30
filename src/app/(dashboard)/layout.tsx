@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.className}`}>
       <body>
-        <p>dashboard</p>
+        {/* <p>dashboard</p> */}
         {children}
       </body>
     </html>
