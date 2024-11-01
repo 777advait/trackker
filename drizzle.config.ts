@@ -1,12 +1,11 @@
-import { type Config } from "drizzle-kit";
-
 import { env } from "@/env";
+import { defineConfig } from "drizzle-kit";
 
-export default {
-  schema: "./src/server/db/schema.ts",
+export default defineConfig({
+  schema: "./src/server/db/schema",
+  out: "./src/server/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  tablesFilter: ["trackker-io_*"],
-} satisfies Config;
+});

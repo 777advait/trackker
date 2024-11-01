@@ -53,24 +53,24 @@ export default function SignInForm() {
     if (step === 0) {
       setIsLoading(true);
 
-      const { success } = await generateOTP(data.email);
+      const { error } = await generateOTP(data.email);
 
-      if (success) {
-        setStep(step + 1);
-      } else {
+       if (error) {
         form.setError("email", {
           type: "validate",
           message: "We couldn't send you a verification code!",
         });
+
       }
 
+      setStep(step + 1)
       setIsLoading(false);
     } else {
       setIsLoading(true);
 
-      const { success } = await verifyOTP(data.email, data.otp!);
+      const { error } = await verifyOTP(data.email, data.otp!);
 
-      if (!success) {
+      if (error) {
         form.setError("otp", {
           type: "validate",
           message: "Invalid code!",
@@ -79,6 +79,7 @@ export default function SignInForm() {
 
       setIsLoading(false);
       router.push("/dashboard");
+      return;
     }
   }
 
@@ -122,7 +123,9 @@ export default function SignInForm() {
                 control={form.control}
                 name="otp"
                 render={({ field }) => (
-                  <FormItem className={`flex w-full flex-col justify-center ${step !== 1 ? "hidden" : "block"}`}>
+                  <FormItem
+                    className={`flex w-full flex-col justify-center ${step !== 1 ? "hidden" : "block"}`}
+                  >
                     <FormLabel>Verification Code</FormLabel>
                     <FormControl>
                       <InputOTP
