@@ -6,6 +6,10 @@ import type { User, Session } from "@supabase/supabase-js";
 import { insertUser } from "@/server/db/queries/insert/user";
 import { getUser } from "@/server/db/queries/select/user";
 import { ServiceResponse } from "@/lib/definitions";
+import { db } from "@/server/db";
+import { user } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export async function generateOTP(email: string): ServiceResponse<{
   user: null;
@@ -73,6 +77,43 @@ export async function verifyOTP(
 
   // Return the verified data in both cases
   return { error: null, data };
+}
+
+export async function onboard(data: {
+  username: string;
+  name: string;
+}): ServiceResponse {
+  const supabase = await createClient();
+  const {
+    data: { user: userData },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) {
+    return { error: error.message, data: null };
+  }
+
+  try {
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.username, data.username),
+    });
+
+    if (existingUser) {
+      return { error: "Username already taken", data: null };
+    }
+
+    await db
+      .update(user)
+      .set(data)
+      .where(eq(user.id, userData?.id as string));
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+
+  revalidatePath("/dashboard");
+  return { error: null, data: null };
 }
 
 export async function signOut() {

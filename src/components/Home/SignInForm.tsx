@@ -55,15 +55,17 @@ export default function SignInForm() {
 
       const { error } = await generateOTP(data.email);
 
-       if (error) {
+      if (error) {
         form.setError("email", {
           type: "validate",
           message: "We couldn't send you a verification code!",
         });
 
+        setIsLoading(false);
+        return;
       }
 
-      setStep(step + 1)
+      setStep(step + 1);
       setIsLoading(false);
     } else {
       setIsLoading(true);
