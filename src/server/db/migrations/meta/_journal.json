@@ -15,6 +15,13 @@
       "when": 1730455586390,
       "tag": "0001_dear_queen_noir",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1730532575160,
+      "tag": "0002_smart_preak",
+      "breakpoints": true
     }
   ]
 }

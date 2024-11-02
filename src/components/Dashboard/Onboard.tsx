@@ -14,9 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { GalleryHorizontalEnd } from "lucide-react";
+import { GalleryHorizontalEnd, Rocket } from "lucide-react";
 import { ButtonLoading } from "../ui/button-loading";
-import { useToast } from "@/hooks/use-toast";
 import { onboard } from "@/server/actions/auth";
 
 const onboardSchema = z.object({
@@ -34,35 +33,30 @@ export default function Onboard() {
   const form = useForm<z.infer<typeof onboardSchema>>({
     resolver: zodResolver(onboardSchema),
   });
-  const { toast } = useToast();
 
   async function onSubmit(data: z.infer<typeof onboardSchema>) {
     const { error } = await onboard(data);
-    console.log(error);
+
     if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
+      form.setError("username", { type: "validate", message: error });
       return;
     }
     return;
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
+    <div className="flex min-h-[80vh] flex-col items-center justify-center">
       <div className="">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <span>
-                <GalleryHorizontalEnd className="h-12 w-12 text-accent" />
+              <span className="">
+                <GalleryHorizontalEnd className="h-12 w-12 rounded-xl border-2 bg-muted/25 p-2 text-accent shadow-2xl" />
               </span>
               <h1 className="font-labil text-3xl">Welcome to trackker</h1>
               <p className="text-sm text-muted-foreground">
                 Complete your sign-up by entering your name and a unique
-                username .
+                username.
               </p>
             </div>
 
@@ -97,11 +91,12 @@ export default function Onboard() {
             </div>
 
             {form.formState.isSubmitting ? (
-              <ButtonLoading className="w-full">
-                Creating account...
-              </ButtonLoading>
+              <ButtonLoading className="w-full">Setting up...</ButtonLoading>
             ) : (
-              <Button className="w-full" type="submit">
+              <Button className="flex w-full items-center" type="submit">
+                <span>
+                  <Rocket />
+                </span>
                 Launch
               </Button>
             )}

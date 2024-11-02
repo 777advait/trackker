@@ -2,7 +2,7 @@ import { ChevronRight, GalleryHorizontalEnd, Plus } from "lucide-react";
 import React from "react";
 import UserAvatar from "./UserAvatar";
 import Container from "../Container";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
@@ -106,25 +106,19 @@ function ProjectCard({
 export default function Dashboard() {
   return (
     <>
-      <header className="flex items-center justify-between border-b px-8 py-4">
-        <div className="flex gap-2.5">
-          <span>
-            <GalleryHorizontalEnd className="h-10 w-10 text-accent" />
-          </span>
-          <h1 className="font-labil text-3xl">Dashboard</h1>
-        </div>
-        <UserAvatar />
-      </header>
       <Container className="max-w-[95%] py-8">
         <div className="space-y-6">
           <div className="flex flex-col gap-4">
             <div className="">
-              <Button>
+              <Link
+                className={buttonVariants({ variant: "default" })}
+                href="/dashboard/new"
+              >
                 <span>
                   <Plus />
                 </span>
                 New Project
-              </Button>
+              </Link>
             </div>
           </div>
           <div className="flex items-start gap-12">

@@ -1,3 +1,4 @@
+import Navbar from "@/components/Dashboard/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import "@/styles/globals.css";
 
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.className}`}>
       <body>
+        <Navbar />
         {children}
         <Toaster />
       </body>

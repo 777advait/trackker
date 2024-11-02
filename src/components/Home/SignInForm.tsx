@@ -77,6 +77,8 @@ export default function SignInForm() {
           type: "validate",
           message: "Invalid code!",
         });
+        setIsLoading(false);
+        return;
       }
 
       setIsLoading(false);
