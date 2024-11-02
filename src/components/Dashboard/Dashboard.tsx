@@ -6,6 +6,9 @@ import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { fetchProjects } from "@/server/actions/projects";
+import { ProjectCard } from "./ProjectCard";
 
 const recentIssues: {
   id: number;
@@ -45,65 +48,62 @@ const recentIssues: {
   },
 ];
 
-const yourProjects = [
-  {
-    id: 1,
-    title: "Project 1",
-    created_by: "advaitjadhav",
-    created_at: new Date(),
-  },
-];
-
 const sharedProjects = [
   {
-    id: 1,
-    title: "Project 1 is really long title idk why",
+    id: "1",
+    name: "Project 1 is really long name",
     created_by: "advaitjadhav",
-    created_at: new Date(),
+    created_at: new Date().toDateString(),
   },
   {
-    id: 2,
-    title: "Project 2",
+    id: "2",
+    name: "Project 2",
     created_by: "advaitjadhav",
-    created_at: new Date(),
+    created_at: new Date().toDateString(),
   },
   {
-    id: 3,
-    title: "Project 3",
+    id: "3",
+    name: "Project 3",
     created_by: "advaitjadhav",
-    created_at: new Date(),
+    created_at: new Date().toDateString(),
   },
 ];
 
-function ProjectCard({
-  project,
-}: {
-  project: {
-    id: number;
-    title: string;
-    created_by: string;
-    created_at: Date;
-  };
-}) {
-  return (
-    <div className="group flex h-48 w-full flex-col justify-between rounded-xl border bg-card p-6 shadow-md transition-all duration-300 ease-in-out hover:cursor-pointer hover:bg-muted/25">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1 overflow-hidden">
-          <h3 className="truncate text-lg font-semibold">{project.title}</h3>
-          <p className="text-sm text-muted-foreground">{project.created_by}</p>
-        </div>
-        <div className="flex-shrink-0 transition-transform duration-300 ease-in-out group-hover:translate-x-1">
-          <ChevronRight className="h-5 w-5" />
-        </div>
+async function UserProjects() {
+  const { data: projectsData, error: projectsError } = await fetchProjects();
+
+  if (projectsError || !projectsData) {
+    return (
+      <div className="text-center text-muted-foreground">
+        Could not load your projects. Please try again later.
       </div>
-      <p className="text-sm text-muted-foreground">
-        {project.created_at.toLocaleDateString("en-GB")}
-      </p>
-    </div>
+    );
+  }
+
+  if (projectsData.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground">
+        No projects found. Create a{" "}
+        <Link className="underline underline-offset-2" href="/dashboard/new">
+          new project
+        </Link>{" "}
+        to get started.
+      </div>
+    );
+  }
+
+  return (
+    <ul className="grid grid-cols-[repeat(auto-fill,_minmax(280px,_1fr))] gap-4">
+      {projectsData.map((project, idx) => (
+        <li key={idx}>
+          <ProjectCard project={project} />
+        </li>
+      ))}
+    </ul>
   );
 }
 
-export default function Dashboard() {
+export default async function Dashboard() {
   return (
     <>
       <Container className="max-w-[95%] py-8">
@@ -157,32 +157,10 @@ export default function Dashboard() {
 
             <div className="flex w-full flex-col gap-12">
               {/* Your Projects Section */}
-              {yourProjects?.length > 0 && (
-                <div className="flex w-full flex-col gap-2.5">
-                  <h2 className="text-lg">Your Projects</h2>
-                  <ul className="grid grid-cols-[repeat(auto-fill,_minmax(280px,_1fr))] gap-4">
-                    {yourProjects.map((project, idx) => (
-                      <li key={idx}>
-                        <ProjectCard project={project} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Shared Projects Section */}
-              {sharedProjects?.length > 0 && (
-                <div className="flex w-full flex-col gap-2.5">
-                  <h2 className="text-lg">Shared Projects</h2>
-                  <ul className="grid grid-cols-[repeat(auto-fill,_minmax(280px,_1fr))] gap-4">
-                    {sharedProjects.map((project, idx) => (
-                      <li key={idx}>
-                        <ProjectCard project={project} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div className="flex w-full flex-col gap-2.5">
+                <h2 className="text-lg">Your Projects</h2>
+                <UserProjects />
+              </div>
             </div>
           </div>
         </div>

@@ -20,12 +20,10 @@ import { onboard } from "@/server/actions/auth";
 
 const onboardSchema = z.object({
   name: z
-    .string()
-    .min(1, { message: "We won't sell your data" })
+    .string({ required_error: "We won't sell your data" })
     .max(50, { message: "Too long..." }),
   username: z
-    .string()
-    .min(1, { message: "We won't sell your data" })
+    .string({ required_error: "We won't sell your data" })
     .max(14, { message: "Too long..." }),
 });
 

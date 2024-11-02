@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 
 const projectSchema = z.object({
   name: z
-    .string({ required_error: "Your project ain't got no name" })
+    .string({ required_error: "Your project ain't got no name?" })
     .max(20, { message: "Too long..." }),
 });
 

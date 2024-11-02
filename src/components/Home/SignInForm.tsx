@@ -49,7 +49,6 @@ export default function SignInForm() {
   });
 
   async function onSubmit(data: z.infer<typeof authSchema>) {
-    console.log(data);
     if (step === 0) {
       setIsLoading(true);
 
