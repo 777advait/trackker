@@ -1,16 +1,19 @@
 import Container from "@/components/Container";
 import SignInForm from "@/components/Home/SignInForm";
 import { createClient } from "@/lib/supabase/server";
-import { GalleryHorizontalEnd, CornerDownRight } from "lucide-react";
+import { GalleryHorizontalEnd, CornerDownRight, Heart } from "lucide-react";
 import { redirect } from "next/navigation";
 import React from "react";
 
 export default async function Page() {
   const supabase = await createClient();
-  const {data: {session}, error} = await supabase.auth.getSession();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
   if (session) {
-    redirect("/dashboard")
+    redirect("/dashboard");
   }
 
   return (
