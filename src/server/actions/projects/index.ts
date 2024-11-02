@@ -2,6 +2,7 @@
 
 import { ServiceResponse } from "@/lib/definitions";
 import { createClient } from "@/lib/supabase/server";
+import { insertMember } from "@/server/db/queries/insert/members";
 import { insertProject } from "@/server/db/queries/insert/projects";
 import { getProjects } from "@/server/db/queries/select/projects";
 import { getUser } from "@/server/db/queries/select/user";
@@ -18,13 +19,22 @@ export async function createProject(name: string): ServiceResponse {
     return { error: error?.message ?? "User not found", data: null };
   }
 
-  const { error: insertError } = await insertProject({
+  const { data: projectData, error: insertError } = await insertProject({
     name,
     created_by: user.id,
   });
 
-  if (insertError) {
-    return { error: insertError, data: null };
+  if (insertError || !projectData) {
+    return { error: insertError ?? "Error creating project", data: null };
+  }
+
+  const { error: membersError } = await insertMember({
+    user_id: user.id,
+    project_id: projectData.id,
+  });
+
+  if (membersError) {
+    return { error: membersError, data: null };
   }
 
   return { error: null, data: null };

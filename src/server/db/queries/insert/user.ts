@@ -1,15 +1,19 @@
 import { ServiceResponse } from "@/lib/definitions";
 import { db } from "../..";
-import { InsertUser, user } from "../../schema/user";
+import { InsertUser, SelectUser, user } from "../../schema/user";
 
-export async function insertUser(data: InsertUser): ServiceResponse {
+export async function insertUser(
+  data: InsertUser,
+): ServiceResponse<SelectUser> {
+  let userData: SelectUser | undefined;
+
   try {
-    await db.insert(user).values(data);
+    userData = (await db.insert(user).values(data).returning())[0];
   } catch (error) {
     if (error instanceof Error) {
       return { error: error.message, data: null };
     }
   }
 
-  return { error: null, data: null };
+  return { error: null, data: userData ?? null };
 }
