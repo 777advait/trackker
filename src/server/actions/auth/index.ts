@@ -75,6 +75,7 @@ export async function verifyOTP(
     }
   }
 
+  revalidatePath("/");
   // Return the verified data in both cases
   return { error: null, data };
 }

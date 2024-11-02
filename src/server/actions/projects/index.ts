@@ -8,7 +8,7 @@ import { getProjects } from "@/server/db/queries/select/projects";
 import { getUser } from "@/server/db/queries/select/user";
 import { SelectProject } from "@/server/db/schema";
 
-export async function createProject(name: string): ServiceResponse {
+export async function createProject(name: string): ServiceResponse<SelectProject> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,7 +37,7 @@ export async function createProject(name: string): ServiceResponse {
     return { error: membersError, data: null };
   }
 
-  return { error: null, data: null };
+  return { error: null, data: projectData };
 }
 
 export async function fetchProjects(): ServiceResponse<SelectProject[]> {

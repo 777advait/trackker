@@ -34,6 +34,14 @@
     --input: 0 0% 14.9%;
     --ring: 35 98% 71%;
     --radius: 0.5rem;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 35 98% 71%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 35 98% 71%;
+    --sidebar-accent-foreground: 20 0% 5%;
+    --sidebar-border: 0 0% 14.9%;
+    --sidebar-ring: 35 98% 71%;
   }
 }
 

@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 export function ProjectCard({
   project,
@@ -11,7 +12,10 @@ export function ProjectCard({
   };
 }) {
   return (
-    <div className="group flex h-48 w-full flex-col justify-between rounded-xl border bg-card p-6 shadow-md transition-all duration-300 ease-in-out hover:cursor-pointer hover:bg-muted/25">
+    <Link
+      href={`/project/${project.id}`}
+      className="group flex h-48 w-full flex-col justify-between rounded-xl border bg-card p-6 shadow-md transition-all duration-300 ease-in-out hover:cursor-pointer hover:bg-muted/25"
+    >
       <div className="flex items-center justify-between">
         <div className="space-y-1 overflow-hidden">
           <h3 className="truncate text-lg font-semibold">{project.name}</h3>
@@ -24,6 +28,6 @@ export function ProjectCard({
       <p className="text-sm text-muted-foreground">
         {new Date(project.created_at).toLocaleDateString("en-GB")}
       </p>
-    </div>
+    </Link>
   );
 }

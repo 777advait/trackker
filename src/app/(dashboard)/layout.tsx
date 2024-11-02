@@ -1,5 +1,4 @@
 import Navbar from "@/components/Dashboard/Navbar";
-import { Toaster } from "@/components/ui/toaster";
 import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
@@ -19,7 +18,6 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
-        <Toaster />
       </body>
     </html>
   );

@@ -24,7 +24,12 @@ const onboardSchema = z.object({
     .max(50, { message: "Too long..." }),
   username: z
     .string({ required_error: "We won't sell your data" })
-    .max(14, { message: "Too long..." }),
+    .max(14, { message: "Too long..." })
+    .regex(/^[a-z0-9._]+$/, {
+      message:
+        "Username can only contain lowercase letters, numbers, underscores, and dots",
+    })
+    .transform((val) => val.toLowerCase()),
 });
 
 export default function Onboard() {

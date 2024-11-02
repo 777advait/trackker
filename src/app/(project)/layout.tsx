@@ -1,3 +1,6 @@
+import Navbar from "@/components/Project/Navbar";
+import ProjectSidebar from "@/components/Project/ProjectSidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
@@ -13,10 +16,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.className}`}>
+    <html lang="en" className={GeistSans.className}>
       <body>
-        <p>team</p>
-        {children}
+        <SidebarProvider>
+          <ProjectSidebar />
+          <SidebarInset className="flex flex-col">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );

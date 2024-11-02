@@ -32,14 +32,14 @@ export default function ProjectForm() {
   const router = useRouter();
 
   async function onSubmit(data: z.infer<typeof projectSchema>) {
-    const { error } = await createProject(data.name);
+    const { data: projectData, error } = await createProject(data.name);
 
     if (error) {
       form.setError("name", { type: "validate", message: error });
       return;
     }
 
-    router.push("/project");
+    router.push(`/project/${projectData?.id}`);
     return;
   }
 
