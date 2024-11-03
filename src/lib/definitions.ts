@@ -1,11 +1,10 @@
-import { z } from "zod";
-import { db } from "@/server/db";
-import { user } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { SelectProject } from "@/server/db/schema";
 
 export type ServiceResponse<TData = null> = Promise<{
   error: string | null;
   data: TData | null;
 }>;
 
-
+export type UpdateProject = {
+  id: string;
+} & Partial<Omit<SelectProject, "id">>;

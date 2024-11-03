@@ -18,22 +18,22 @@ const overviewCards = [
   {
     title: "Total Issues",
     icon: LineChart,
-    number: 10,
+    metric: 10,
   },
   {
     title: "Open Issues",
     icon: AlertTriangle,
-    number: 10,
+    metric: 10,
   },
   {
     title: "Closed Issues",
     icon: ThumbsUp,
-    number: 10,
+    metric: 10,
   },
   {
     title: "Members",
     icon: UserPlus2,
-    number: 10,
+    metric: 10,
   },
 ];
 
@@ -85,11 +85,11 @@ async function getIssues() {
 function OverviewCard({
   title,
   icon: Icon,
-  number,
+  metric,
 }: {
   title: string;
   icon: LucideIcon;
-  number: number;
+  metric: number;
 }) {
   return (
     <Card className="relative overflow-hidden">
@@ -98,7 +98,7 @@ function OverviewCard({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{number}</div>
+        <div className="text-2xl font-bold">{metric}</div>
       </CardContent>
       <div
         className="absolute -bottom-24 -right-24 h-52 w-52 rounded-full opacity-80 blur-xl"

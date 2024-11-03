@@ -5,8 +5,13 @@ import { createClient } from "@/lib/supabase/server";
 import { SelectProject } from "@/server/db/schema";
 import { insertMember, insertProject } from "../db/queries/insert";
 import { getProjects, getUser } from "../db/queries/select";
+import { updateProject } from "../db/queries/update";
+import { revalidatePath } from "next/cache";
+import { deleteProject } from "../db/queries/delete";
 
-export async function createProject(name: string): ServiceResponse<SelectProject> {
+export async function createProject(
+  name: string,
+): ServiceResponse<SelectProject> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -69,4 +74,31 @@ export async function fetchProjects(): ServiceResponse<SelectProject[]> {
   );
 
   return { error: null, data: projectsData };
+}
+
+export async function renameProject(
+  projectId: string,
+  name: string,
+): ServiceResponse {
+  const { error } = await updateProject({ id: projectId, name });
+
+  if (error) {
+    return { error: error, data: null };
+  }
+
+  revalidatePath(`/project/${projectId}/settings`);
+
+  return { error: null, data: null };
+}
+
+export async function deleteProjectAction(projectId: string): ServiceResponse {
+  const { error } = await deleteProject(projectId);
+
+  if (error) {
+    return { error: error, data: null };
+  }
+
+  revalidatePath("/dashboard");
+
+  return { error: null, data: null };
 }
