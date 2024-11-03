@@ -2,7 +2,8 @@ import Dashboard from "@/components/Dashboard/Dashboard";
 import Onboard from "@/components/Dashboard/Onboard";
 import UserAvatar from "@/components/Dashboard/UserAvatar";
 import { createClient } from "@/lib/supabase/server";
-import { getUser } from "@/server/db/queries/select/user";
+import { getUser } from "@/server/db/queries/select";
+
 import React from "react";
 
 export default async function Page() {

@@ -22,11 +22,13 @@ import { useRouter } from "next/navigation";
 const projectSchema = z.object({
   name: z
     .string({ required_error: "Your project ain't got no name?" })
+    .min(1, { message: "Your project ain't got no name?" })
     .max(20, { message: "Too long..." }),
 });
 
 export default function ProjectForm() {
   const form = useForm<z.infer<typeof projectSchema>>({
+    defaultValues: { name: "" },
     resolver: zodResolver(projectSchema),
   });
   const router = useRouter();

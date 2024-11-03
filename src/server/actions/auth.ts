@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { User, Session } from "@supabase/supabase-js";
-import { insertUser } from "@/server/db/queries/insert/user";
-import { getUser } from "@/server/db/queries/select/user";
 import { ServiceResponse } from "@/lib/definitions";
 import { db } from "@/server/db";
 import { user } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getUser } from "../db/queries/select";
+import { insertUser } from "../db/queries/insert";
 
 export async function generateOTP(email: string): ServiceResponse<{
   user: null;

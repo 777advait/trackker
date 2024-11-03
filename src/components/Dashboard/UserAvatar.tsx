@@ -20,7 +20,7 @@ export default function UserAvatar() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="rounded-full bg-muted text-muted-foreground p-2">
+      <DropdownMenuTrigger className="rounded-full bg-muted p-2 text-muted-foreground">
         <User2 className="" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>

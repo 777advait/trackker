@@ -2,11 +2,9 @@
 
 import { ServiceResponse } from "@/lib/definitions";
 import { createClient } from "@/lib/supabase/server";
-import { insertMember } from "@/server/db/queries/insert/members";
-import { insertProject } from "@/server/db/queries/insert/projects";
-import { getProjects } from "@/server/db/queries/select/projects";
-import { getUser } from "@/server/db/queries/select/user";
 import { SelectProject } from "@/server/db/schema";
+import { insertMember, insertProject } from "../db/queries/insert";
+import { getProjects, getUser } from "../db/queries/select";
 
 export async function createProject(name: string): ServiceResponse<SelectProject> {
   const supabase = await createClient();

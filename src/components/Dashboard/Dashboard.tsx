@@ -74,7 +74,7 @@ async function UserProjects() {
 
   if (projectsError || !projectsData) {
     return (
-      <div className="text-center text-muted-foreground py-8">
+      <div className="py-8 text-center text-muted-foreground">
         Could not load your projects. Please try again later.
       </div>
     );
@@ -82,7 +82,7 @@ async function UserProjects() {
 
   if (projectsData.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-8">
+      <div className="py-8 text-center text-muted-foreground">
         No projects found. Create a{" "}
         <Link className="underline underline-offset-2" href="/dashboard/new">
           new project
