@@ -32,5 +32,18 @@ export async function getUser(id: string): ServiceResponse<SelectUser | null> {
     }
   }
 
-  return { error: null, data: data || null };
+  return { error: null, data: data ?? null };
+}
+
+export async function getProject(id: string): ServiceResponse<SelectProject> {
+  let data: SelectProject | undefined = undefined;
+
+  try {
+    data = await db.query.projects.findFirst({ where: eq(projects.id, id) });
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+  return { error: null, data: data ?? null };
 }

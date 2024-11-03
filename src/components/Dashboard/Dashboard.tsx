@@ -125,7 +125,7 @@ export default async function Dashboard() {
             {/*  Recent Issues Section */}
             {recentIssues?.length > 0 && (
               <div className="flex w-full max-w-[25%] flex-col gap-2.5">
-                <h2 className="text-lg">Recent Issues</h2>
+                <h2 className="text-lg font-medium">Recent Issues</h2>
                 <div className="space-y-4 rounded-lg border bg-card p-4 shadow-md">
                   <ul className={cn("space-y-2")}>
                     {recentIssues.map((issues, idx) => (
@@ -158,7 +158,7 @@ export default async function Dashboard() {
             <div className="flex w-full flex-col gap-12">
               {/* Your Projects Section */}
               <div className="flex w-full flex-col gap-2.5">
-                <h2 className="text-lg">Your Projects</h2>
+                <h2 className="text-lg font-medium">Your Projects</h2>
                 <UserProjects />
               </div>
             </div>

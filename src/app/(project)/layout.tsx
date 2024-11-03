@@ -21,7 +21,6 @@ export default function RootLayout({
         <SidebarProvider>
           <ProjectSidebar />
           <SidebarInset className="flex flex-col">
-            <Navbar />
             <main className="flex-1">{children}</main>
           </SidebarInset>
         </SidebarProvider>
