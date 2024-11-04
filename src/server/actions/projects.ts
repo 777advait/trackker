@@ -4,7 +4,7 @@ import { ServiceResponse } from "@/lib/definitions";
 import { createClient } from "@/lib/supabase/server";
 import { SelectProject } from "@/server/db/schema";
 import { insertMember, insertProject } from "../db/queries/insert";
-import { getProjects, getUser } from "../db/queries/select";
+import { getMetrics, getProjects, getUser } from "../db/queries/select";
 import { updateProject } from "../db/queries/update";
 import { revalidatePath } from "next/cache";
 import { deleteProject } from "../db/queries/delete";
@@ -101,4 +101,14 @@ export async function deleteProjectAction(projectId: string): ServiceResponse {
   revalidatePath("/dashboard");
 
   return { error: null, data: null };
+}
+
+export async function fetchMetrics(project_id: string) {
+  const { data, error } = await getMetrics(project_id);
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return { data, error: null };
 }

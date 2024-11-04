@@ -48,27 +48,6 @@ const recentIssues: {
   },
 ];
 
-const sharedProjects = [
-  {
-    id: "1",
-    name: "Project 1 is really long name",
-    created_by: "advaitjadhav",
-    created_at: new Date().toDateString(),
-  },
-  {
-    id: "2",
-    name: "Project 2",
-    created_by: "advaitjadhav",
-    created_at: new Date().toDateString(),
-  },
-  {
-    id: "3",
-    name: "Project 3",
-    created_by: "advaitjadhav",
-    created_at: new Date().toDateString(),
-  },
-];
-
 async function UserProjects() {
   const { data: projectsData, error: projectsError } = await fetchProjects();
 

@@ -10,7 +10,8 @@ import {
   user,
 } from "../schema";
 import { db } from "../";
-import { eq } from "drizzle-orm";
+import { count, eq, ne, sql } from "drizzle-orm";
+import { AlertTriangle, LineChart, ThumbsUp, UserPlus2 } from "lucide-react";
 
 export async function getProjects(
   userId: string,
@@ -97,6 +98,67 @@ export async function getIssues(
   try {
     data = await db.query.issues.findMany({
       where: eq(issues.project_id, project_id),
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+
+  return { error: null, data };
+}
+
+export async function getMetrics(project_id: string) {
+  let data = [
+    { title: "Total Issues", metric: 0, icon: AlertTriangle },
+    { title: "Open Issues", metric: 0, icon: LineChart },
+    { title: "Closed Issues", metric: 0, icon: ThumbsUp },
+    { title: "Total Members", metric: 0, icon: UserPlus2 },
+  ];
+
+  try {
+    const totalIssues = (
+      await db
+        .select({ count: count(issues.id) })
+        .from(issues)
+        .where(eq(issues.project_id, project_id))
+    )[0]?.count as number;
+
+    const openIssues = (
+      await db
+        .select({ count: count(issues.id) })
+        .from(issues)
+        .where(
+          sql`${issues.project_id} = ${project_id} AND ${issues.status} != 'Closed'`,
+        )
+    )[0]?.count as number;
+
+    const closedIssues = (
+      await db
+        .select({ count: count(issues.id) })
+        .from(issues)
+        .where(eq(issues.status, "Closed"))
+    )[0]?.count as number;
+
+    const totalMembers = (
+      await db
+        .select({ count: count(members.id) })
+        .from(members)
+        .where(eq(members.project_id, project_id))
+    )[0]?.count as number;
+
+    data = data.map((metrics) => {
+      return {
+        ...metrics,
+        metric:
+          metrics.title === "Total Issues"
+            ? totalIssues
+            : metrics.title === "Open Issues"
+              ? openIssues
+              : metrics.title === "Closed Issues"
+                ? closedIssues
+                : totalMembers,
+      };
     });
   } catch (error) {
     if (error instanceof Error) {

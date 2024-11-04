@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { createClient } from "@/lib/supabase/server";
 import { fetchIssues } from "@/server/actions/issues";
+import { fetchMetrics } from "@/server/actions/projects";
 import { getUserByMemberId } from "@/server/actions/user";
 import { getProject, getUser } from "@/server/db/queries/select";
 import {
@@ -15,29 +16,6 @@ import {
   LucideIcon,
 } from "lucide-react";
 import React from "react";
-
-const overviewCards = [
-  {
-    title: "Total Issues",
-    icon: LineChart,
-    metric: 10,
-  },
-  {
-    title: "Open Issues",
-    icon: AlertTriangle,
-    metric: 10,
-  },
-  {
-    title: "Closed Issues",
-    icon: ThumbsUp,
-    metric: 10,
-  },
-  {
-    title: "Members",
-    icon: UserPlus2,
-    metric: 10,
-  },
-];
 
 function OverviewCard({
   title,
@@ -70,76 +48,83 @@ function OverviewCard({
 export default async function Page({ params }: { params: { id: string } }) {
   const supabase = await createClient();
 
-  try {
-    // Parallel data fetching to improve performance
-    let [{ data: user }, { data: projectData }, { data: issues }] =
-      await Promise.all([
-        supabase.auth.getUser(),
-        getProject(params.id),
-        fetchIssues(params.id),
-      ]);
+  // Parallel data fetching to improve performance
+  let [
+    { data: user },
+    { data: projectData, error: projectError },
+    { data: issues, error: issuesError },
+    { data: metrics, error: metricsError },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    getProject(params.id),
+    fetchIssues(params.id),
+    fetchMetrics(params.id),
+  ]);
 
-    // Check if any essential data is missing or if there's an error
-    if (!user.user || !projectData || !issues) {
-      throw new Error("Data fetch error");
-    }
+  // Log any errors encountered
+  if (projectError) console.error("Project data fetch error:", projectError);
+  if (issuesError) console.error("Issues data fetch error:", issuesError);
+  if (metricsError) console.error("Metrics data fetch error:", metricsError);
 
-    const { data: userData, error: userError } = await getUser(user.user.id);
-
-    if (userError || !userData) {
-      throw new Error("User data fetch error");
-    }
-
-    issues = await Promise.all(
-      issues.map(async (issue) => {
-        if (issue.assignee) {
-          const { data: assigneeUsername, error: assigneeError } =
-            await getUserByMemberId(issue.assignee);
-          if (assigneeError) {
-            console.error(
-              `Error fetching username for assignee ${issue.assignee}:`,
-              assigneeError,
-            );
-            return { ...issue, assignee: "Unknown User" }; // Fallback if user fetch fails
-          }
-          return { ...issue, assignee: assigneeUsername };
-        }
-        return issue;
-      }),
-    );
-
-    // Render component if all data is available
-    return (
-      <>
-        <Navbar projectName={projectData.name} />
-        <Container className="max-w-[90%] py-8">
-          <div className="space-y-6">
-            <div className="space-y-6 border-b pb-6">
-              <h1 className="font-labil text-4xl">Hello, {userData.name}</h1>
-              <div className="grid grid-cols-4 gap-4">
-                {overviewCards.map((card) => (
-                  <OverviewCard key={card.title} {...card} />
-                ))}
-              </div>
-            </div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-3xl">Current Issues</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DataTable columns={columns} data={issues} />
-              </CardContent>
-            </Card>
-          </div>
-        </Container>
-      </>
-    );
-  } catch (error) {
-    // Handle errors in data fetching
+  // Exit early if essential data like user, projectData, or issues is missing
+  if (!user?.user || !projectData || !issues) {
+    console.error("Data fetch error: Essential data missing.");
     return (
       <div className="py-8 text-center font-medium text-muted-foreground">
         Error while fetching data. Please refresh or try again later.
       </div>
     );
   }
+
+  // Fetch user data for the logged-in user
+  const { data: userData, error: userError } = await getUser(user.user.id);
+  if (userError || !userData) {
+    console.error("User data fetch error:", userError);
+  }
+
+  // Map issues to include assignee `username` using `getUserByMemberId`
+  issues = await Promise.all(
+    issues.map(async (issue) => {
+      if (issue.assignee) {
+        const { data: assigneeUsername, error: assigneeError } =
+          await getUserByMemberId(issue.assignee);
+        if (assigneeError) {
+          console.error(
+            `Error fetching username for assignee ${issue.assignee}:`,
+            assigneeError,
+          );
+          return { ...issue, assignee: "Unknown User" }; // Fallback if user fetch fails
+        }
+        return { ...issue, assignee: assigneeUsername };
+      }
+      return issue;
+    }),
+  );
+
+  // Render component if all data is available
+  return (
+    <>
+      <Navbar projectName={projectData.name} />
+      <Container className="max-w-[90%] py-8">
+        <div className="space-y-6">
+          <div className="space-y-6 border-b pb-6">
+            <h1 className="font-labil text-4xl">Hello, {userData?.name}</h1>
+            <div className="grid grid-cols-4 gap-4">
+              {metrics?.map((metric) => (
+                <OverviewCard key={metric.title} {...metric} />
+              ))}
+            </div>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-3xl">Current Issues</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable columns={columns} data={issues} />
+            </CardContent>
+          </Card>
+        </div>
+      </Container>
+    </>
+  );
 }

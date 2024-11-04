@@ -73,7 +73,7 @@ export default function Onboard() {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="advait" />
+                      <Input {...field} placeholder="Enter your name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -87,7 +87,7 @@ export default function Onboard() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="777advait" />
+                      <Input {...field} placeholder="Enter your username" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
