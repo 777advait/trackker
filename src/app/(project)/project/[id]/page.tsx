@@ -4,6 +4,8 @@ import Navbar from "@/components/Project/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { createClient } from "@/lib/supabase/server";
+import { fetchIssues } from "@/server/actions/issues";
+import { getUserByMemberId } from "@/server/actions/user";
 import { getProject, getUser } from "@/server/db/queries/select";
 import {
   AlertTriangle,
@@ -12,7 +14,6 @@ import {
   UserPlus2,
   LucideIcon,
 } from "lucide-react";
-import { notFound } from "next/navigation";
 import React from "react";
 
 const overviewCards = [
@@ -37,51 +38,6 @@ const overviewCards = [
     metric: 10,
   },
 ];
-
-async function getIssues() {
-  return [
-    {
-      id: "1",
-      title: "Issue 1",
-      priority: "High",
-      assignee: "advaitjadhav",
-      deadline: "2023-01-01",
-      status: "open",
-    },
-    {
-      id: "2",
-      title: "Issue 2",
-      priority: "Medium",
-      assignee: "advaitjadhav",
-      deadline: "2023-01-02",
-      status: "open",
-    },
-    {
-      id: "3",
-      title: "Issue 3",
-      priority: "Low",
-      assignee: "advaitjadhav",
-      deadline: "2023-01-03",
-      status: "open",
-    },
-    {
-      id: "4",
-      title: "Issue 4",
-      priority: "High",
-      assignee: "advaitjadhav",
-      deadline: "2023-01-04",
-      status: "open",
-    },
-    {
-      id: "5",
-      title: "Issue 5",
-      priority: "Medium",
-      assignee: "advaitjadhav",
-      deadline: "2023-01-05",
-      status: "open",
-    },
-  ];
-}
 
 function OverviewCard({
   title,
@@ -112,49 +68,78 @@ function OverviewCard({
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const issues = await getIssues();
   const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  const { data: projectData, error: projectError } = await getProject(
-    params.id,
-  );
 
-  if (error || !user || !projectData || projectError) {
-    notFound();
-  }
+  try {
+    // Parallel data fetching to improve performance
+    let [{ data: user }, { data: projectData }, { data: issues }] =
+      await Promise.all([
+        supabase.auth.getUser(),
+        getProject(params.id),
+        fetchIssues(params.id),
+      ]);
 
-  const { data: userData, error: userError } = await getUser(user.id);
+    // Check if any essential data is missing or if there's an error
+    if (!user.user || !projectData || !issues) {
+      throw new Error("Data fetch error");
+    }
 
-  if (userError || !userData) {
-    notFound();
-  }
+    const { data: userData, error: userError } = await getUser(user.user.id);
 
-  return (
-    <>
-      <Navbar projectName={projectData.name} />
-      <Container className="max-w-[90%] py-8">
-        <div className="space-y-6">
-          <div className="space-y-6 border-b pb-6">
-            <h1 className="font-labil text-4xl">Hello, {userData.name}</h1>
-            <div className="grid grid-cols-4 gap-4">
-              {overviewCards.map((card) => (
-                <OverviewCard key={card.title} {...card} />
-              ))}
+    if (userError || !userData) {
+      throw new Error("User data fetch error");
+    }
+
+    issues = await Promise.all(
+      issues.map(async (issue) => {
+        if (issue.assignee) {
+          const { data: assigneeUsername, error: assigneeError } =
+            await getUserByMemberId(issue.assignee);
+          if (assigneeError) {
+            console.error(
+              `Error fetching username for assignee ${issue.assignee}:`,
+              assigneeError,
+            );
+            return { ...issue, assignee: "Unknown User" }; // Fallback if user fetch fails
+          }
+          return { ...issue, assignee: assigneeUsername };
+        }
+        return issue;
+      }),
+    );
+
+    // Render component if all data is available
+    return (
+      <>
+        <Navbar projectName={projectData.name} />
+        <Container className="max-w-[90%] py-8">
+          <div className="space-y-6">
+            <div className="space-y-6 border-b pb-6">
+              <h1 className="font-labil text-4xl">Hello, {userData.name}</h1>
+              <div className="grid grid-cols-4 gap-4">
+                {overviewCards.map((card) => (
+                  <OverviewCard key={card.title} {...card} />
+                ))}
+              </div>
             </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-3xl">Current Issues</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DataTable columns={columns} data={issues} />
+              </CardContent>
+            </Card>
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-3xl">Current Issues</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DataTable columns={columns} data={issues} />
-            </CardContent>
-          </Card>
-        </div>
-      </Container>
-    </>
-  );
+        </Container>
+      </>
+    );
+  } catch (error) {
+    // Handle errors in data fetching
+    return (
+      <div className="py-8 text-center font-medium text-muted-foreground">
+        Error while fetching data. Please refresh or try again later.
+      </div>
+    );
+  }
 }

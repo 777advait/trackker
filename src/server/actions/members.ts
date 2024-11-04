@@ -2,7 +2,7 @@
 
 import { ServiceResponse } from "@/lib/definitions";
 import { SelectMember } from "../db/schema";
-import { getMembers, getUser } from "../db/queries/select";
+import { getMember, getMembers, getUser } from "../db/queries/select";
 
 export async function fetchMembers(
   project_id: string,
@@ -37,4 +37,17 @@ export async function fetchMembers(
     error: null,
     data: await Promise.all(data),
   };
+}
+
+export async function fetchMember(id: string): ServiceResponse<SelectMember> {
+  const { data: memberData, error: memberError } = await getMember(id);
+
+  if (memberError || !memberData) {
+    return {
+      error: memberError ?? "Error fetching member",
+      data: null,
+    };
+  }
+
+  return { error: null, data: memberData };
 }

@@ -13,40 +13,50 @@ import { Plus } from "lucide-react";
 import { notFound } from "next/navigation";
 import React from "react";
 import { SelectIssue } from "@/server/db/schema";
-import IssueForm from "@/components/Issue/CreateIssueForm";
 import { fetchMembers } from "@/server/actions/members";
 import CreateIssueForm from "@/components/Issue/CreateIssueForm";
 import EditIssueForm from "@/components/Issue/EditIssueForm";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fetchUser } from "@/server/actions/user";
+import { fetchIssues } from "@/server/actions/issues";
 
-async function IssueListItem({ issue }: { issue: SelectIssue }) {
-  const { data, error } = await getUser(issue.created_by);
-
-  if (error || !data) {
-    return (
-      <div className="py-8 text-center text-muted-foreground">
-        Error fetching issues. Please refresh the page.
-      </div>
-    );
-  }
-
+async function IssueListItem({
+  issue,
+  username,
+}: {
+  issue: SelectIssue;
+  username: string;
+}) {
   return (
     <li className="rounded-md border bg-muted/30 p-4 hover:!bg-muted/20">
       <div className="flex items-center justify-between">
         <div className="flex flex-col items-start space-y-1">
           <h2 className="truncate text-start">{issue.title}</h2>
           <p className="text-xs font-medium text-muted-foreground">
-            {data.username} •{" "}
-            {new Date(issue.created_at).toLocaleDateString("en-GB")}
+            <span>Created By: {username}</span>
+            {issue.deadline && (
+              <span>
+                {" "}
+                • Deadline: {format(new Date(issue.deadline), "MMM dd, yyyy")}
+              </span>
+            )}
           </p>
         </div>
-        <div className="flex items-center space-x-4">
-          {issue.deadline && (
-            <p className="text-sm">
-              {new Date(issue.deadline).toLocaleDateString("en-GB")}
-            </p>
-          )}
+        <div className="">
           {issue.priority && (
-            <p className="rounded-full border bg-red-700/50 px-2 py-1 text-xs">
+            <p
+              className={cn(
+                "rounded-full border px-2 py-1 text-xs",
+                issue.priority === "Urgent & Important" && "bg-red-700/50",
+                issue.priority === "Urgent & Not Important" &&
+                  "bg-yellow-700/50",
+                issue.priority === "Not Urgent & Important" &&
+                  "bg-green-700/50",
+                issue.priority === "Not Urgent & Not Important" &&
+                  "bg-blue-700/50",
+              )}
+            >
               {issue.priority}
             </p>
           )}
@@ -66,10 +76,25 @@ export default async function Page({ params }: { params: { id: string } }) {
   );
 
   if (!projectData || projectError || !membersData || membersError) {
-    notFound();
+    return (
+      <div className="py-8 text-center font-medium text-muted-foreground">
+        Error fetching issues. Please refresh or try again later
+      </div>
+    );
   }
 
-  const { data: issuesData, error: issuesError } = await getIssues(params.id);
+  const { data: issuesData, error: issuesError } = await fetchIssues(params.id);
+  const { data: creatorData, error: creatorError } = await fetchUser(
+    projectData.created_by,
+  );
+
+  if (creatorError || !creatorData) {
+    return (
+      <div className="py-8 text-center font-medium text-muted-foreground">
+        Error fetching issues. Please refresh or try again later
+      </div>
+    );
+  }
 
   return (
     <>
@@ -106,10 +131,13 @@ export default async function Page({ params }: { params: { id: string } }) {
                   No issues found. Create an issue to get started.
                 </div>
               ) : issuesData ? (
-                issuesData.map((issue) => (
+                issuesData.map(async (issue) => (
                   <Sheet key={issue.id}>
                     <SheetTrigger>
-                      <IssueListItem issue={issue} />
+                      <IssueListItem
+                        issue={issue}
+                        username={creatorData.username!}
+                      />
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>

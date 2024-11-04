@@ -37,6 +37,7 @@ export async function getUser(id: string): ServiceResponse<SelectUser | null> {
     data = await db.query.user.findFirst({ where: eq(user.id, id) });
   } catch (error) {
     if (error instanceof Error) {
+      console.error("Error fetching user:", error.message);
       return { error: error.message, data: null };
     }
   }
@@ -73,6 +74,19 @@ export async function getMembers(
   }
 
   return { error: null, data };
+}
+
+export async function getMember(id: string): ServiceResponse<SelectMember> {
+  let data: SelectMember | undefined = undefined;
+
+  try {
+    data = await db.query.members.findFirst({ where: eq(members.id, id) });
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+  return { error: null, data: data ?? null };
 }
 
 export async function getIssues(
