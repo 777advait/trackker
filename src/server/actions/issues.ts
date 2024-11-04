@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getIssues } from "../db/queries/select";
 import { updateIssue } from "../db/queries/update";
+import { deleteIssue } from "../db/queries/delete";
 
 export async function createIssue(
   data: Omit<InsertIssue, "created_by">,
@@ -50,8 +51,24 @@ export async function fetchIssues(
   return { error: null, data: issuesData };
 }
 
-export async function updateIssueAction(issueData: UpdateIssue) {
+export async function updateIssueAction(
+  issueData: UpdateIssue,
+): ServiceResponse {
   const { error } = await updateIssue(issueData);
+
+  if (error) {
+    return { error: error, data: null };
+  }
+
+  revalidatePath(`/project/${issueData.project_id}/issues`);
+
+  return { error: null, data: null };
+}
+
+export async function deleteIssueAction(
+  issueData: SelectIssue,
+): ServiceResponse {
+  const { error } = await deleteIssue(issueData.id);
 
   if (error) {
     return { error: error, data: null };

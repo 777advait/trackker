@@ -113,7 +113,7 @@ export default function SignInForm() {
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="advait@trackker.xyz"
+                        placeholder="admin@trackker.xyz"
                         disabled={step !== 0}
                       />
                     </FormControl>

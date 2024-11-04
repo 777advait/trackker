@@ -50,7 +50,7 @@ export const columns: ColumnDef<SelectIssue>[] = [
     header: "Priority",
     cell: ({ row }) =>
       row.getValue("assignee") ? (
-        <Badge variant="secondary">{row.getValue("assignee")}</Badge>
+        <Badge variant="secondary">{row.getValue("priority")}</Badge>
       ) : (
         <Badge variant="outline">Unassigned</Badge>
       ),

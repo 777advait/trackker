@@ -101,7 +101,7 @@ export default async function Page({ params }: { params: { id: string } }) {
       <Navbar projectName={projectData.name} />
       <Container className="py-8">
         <div className="space-y-4">
-          <div className="flex items-center justify-between border-b pb-4">
+          <div className="flex items-center justify-between border-b pb-4 px-4">
             <h1 className="font-labil text-4xl">Issues</h1>
             <Sheet>
               <SheetTrigger asChild>

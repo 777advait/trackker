@@ -33,9 +33,21 @@ import React from "react";
 import { SheetFooter } from "../ui/sheet";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
-import { createIssue, updateIssueAction } from "@/server/actions/issues";
+import {
+  createIssue,
+  deleteIssueAction,
+  updateIssueAction,
+} from "@/server/actions/issues";
 import { useToast } from "@/hooks/use-toast";
 import { SelectIssue, SelectMember, SelectProject } from "@/server/db/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 const issueSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -84,6 +96,8 @@ export default function CreateIssueForm({
     },
   });
   const { toast } = useToast();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   async function handleUpdate(data: z.infer<typeof issueSchema>) {
     const { error } = await updateIssueAction({
@@ -277,7 +291,11 @@ export default function CreateIssueForm({
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea {...field} value={field.value ?? undefined} placeholder="Description" />
+                <Textarea
+                  {...field}
+                  value={field.value ?? undefined}
+                  placeholder="Description"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -288,7 +306,59 @@ export default function CreateIssueForm({
           {form.formState.isSubmitting ? (
             <ButtonLoading>Updating...</ButtonLoading>
           ) : (
-            <Button type="submit">Update Issue</Button>
+            <>
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="destructive" type="button">
+                    Delete Issue
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete Issue</DialogTitle>
+                  </DialogHeader>
+                  Are you sure you want to delete this issue? This action cannot
+                  be undone.
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsOpen(false)}>
+                      Cancel
+                    </Button>
+                    {isDeleting ? (
+                      <ButtonLoading>Deleting...</ButtonLoading>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        onClick={async () => {
+                          setIsDeleting(true);
+                          const { error } = await deleteIssueAction(issueData);
+
+                          if (error) {
+                            toast({
+                              title: "Error deleting issue",
+                              description: error,
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+
+                          toast({
+                            title: "Issue deleted",
+                            description:
+                              "The issue has been successfully deleted",
+                          });
+
+                          setIsDeleting(false);
+                          setIsOpen(false);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <Button type="submit">Update Issue</Button>
+            </>
           )}
         </SheetFooter>
       </form>
