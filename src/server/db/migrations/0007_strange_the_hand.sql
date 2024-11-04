@@ -1,0 +1,1 @@
+ALTER TABLE "issues" ADD COLUMN "created_at" date DEFAULT now() NOT NULL;

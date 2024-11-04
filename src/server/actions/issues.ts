@@ -1,10 +1,12 @@
 "use server";
 
-import { ServiceResponse } from "@/lib/definitions";
+import { ServiceResponse, UpdateIssue } from "@/lib/definitions";
 import { insertIssue } from "../db/queries/insert";
 import { InsertIssue, SelectIssue } from "../db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getIssues } from "../db/queries/select";
+import { updateIssue } from "../db/queries/update";
 
 export async function createIssue(
   data: Omit<InsertIssue, "created_by">,
@@ -31,4 +33,31 @@ export async function createIssue(
   revalidatePath(`/project/${data.project_id}/issues`);
 
   return { error: null, data: issueData };
+}
+
+export async function fetchIssues(
+  project_id: string,
+): ServiceResponse<SelectIssue[]> {
+  const { data: issuesData, error: issuesError } = await getIssues(project_id);
+
+  if (issuesError || !issuesData) {
+    return {
+      error: issuesError ?? "Error fetching issues",
+      data: null,
+    };
+  }
+
+  return { error: null, data: issuesData };
+}
+
+export async function updateIssueAction(issueData: UpdateIssue) {
+  const { error } = await updateIssue(issueData);
+
+  if (error) {
+    return { error: error, data: null };
+  }
+
+  revalidatePath(`/project/${issueData.project_id}/issues`);
+
+  return { error: null, data: null };
 }

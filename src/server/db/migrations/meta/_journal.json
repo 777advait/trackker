@@ -50,6 +50,13 @@
       "when": 1730648911375,
       "tag": "0006_cultured_talos",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1730693973370,
+      "tag": "0007_strange_the_hand",
+      "breakpoints": true
     }
   ]
 }

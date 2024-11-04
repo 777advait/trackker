@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
@@ -43,6 +43,7 @@ const issueSchema = z.object({
   priority: z
     .enum(
       [
+        "unassigned",
         "Urgent & Important",
         "Urgent & Not Important",
         "Not Urgent & Important",
@@ -52,13 +53,13 @@ const issueSchema = z.object({
     )
     .optional(),
   assignee: z.string().optional(),
-  deadline: z.date().optional(),
+  deadline: z.date().optional().nullable(),
   status: z.enum(["Open", "In Progress", "Closed", "In Review"], {
     message: "Invalid option",
   }),
 });
 
-export default function IssueForm({
+export default function CreateIssueForm({
   projectData,
   membersData,
 }: {
@@ -67,6 +68,10 @@ export default function IssueForm({
 }) {
   const form = useForm<z.infer<typeof issueSchema>>({
     resolver: zodResolver(issueSchema),
+    defaultValues: {
+      priority: "unassigned",
+      assignee: "unassigned",
+    },
   });
   const { toast } = useToast();
 
@@ -74,6 +79,8 @@ export default function IssueForm({
     const { error } = await createIssue({
       ...data,
       project_id: projectData.id,
+      priority: data.priority === "unassigned" ? null : data.priority,
+      assignee: data.assignee === "unassigned" ? null : data.assignee,
       deadline: data.deadline ? data.deadline.toISOString() : null,
     });
 
@@ -90,7 +97,6 @@ export default function IssueForm({
       title: "Issue created",
       description: "You can now edit the issue",
     });
-    
 
     return;
   }
@@ -121,13 +127,14 @@ export default function IssueForm({
           render={({ field }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Priority</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a priority level" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {[
                     "Urgent & Important",
                     "Urgent & Not Important",
@@ -151,13 +158,14 @@ export default function IssueForm({
           render={({ field }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Assignee</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an assignee" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {membersData.map((member) => (
                     <SelectItem key={member.id} value={member.id}>
                       {member.name}
@@ -176,7 +184,7 @@ export default function IssueForm({
           render={({ field }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a status" />
@@ -203,34 +211,45 @@ export default function IssueForm({
           render={({ field }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Deadline</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value || undefined}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                {field.value && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => field.onChange(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}

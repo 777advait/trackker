@@ -1,4 +1,4 @@
-import { SelectProject } from "@/server/db/schema";
+import { SelectIssue, SelectProject } from "@/server/db/schema";
 
 export type ServiceResponse<TData = null> = Promise<{
   error: string | null;
@@ -8,3 +8,7 @@ export type ServiceResponse<TData = null> = Promise<{
 export type UpdateProject = {
   id: string;
 } & Partial<Omit<SelectProject, "id">>;
+
+export type UpdateIssue = {
+  id: string;
+} & Partial<Omit<SelectIssue, "id">>;

@@ -1,7 +1,9 @@
 import { ServiceResponse } from "@/lib/definitions";
 import {
+  issues,
   members,
   projects,
+  SelectIssue,
   SelectMember,
   SelectProject,
   SelectUser,
@@ -63,6 +65,24 @@ export async function getMembers(
   try {
     data = await db.query.members.findMany({
       where: eq(members.project_id, project_id),
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+
+  return { error: null, data };
+}
+
+export async function getIssues(
+  project_id: string,
+): ServiceResponse<SelectIssue[]> {
+  let data: SelectIssue[] = [];
+
+  try {
+    data = await db.query.issues.findMany({
+      where: eq(issues.project_id, project_id),
     });
   } catch (error) {
     if (error instanceof Error) {

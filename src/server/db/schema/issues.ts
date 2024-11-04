@@ -29,6 +29,7 @@ export const issues = pgTable("issues", {
   priority: priority_levels(),
   status: status_levels().notNull().default("Open"),
   deadline: date(),
+  created_at: date().notNull().defaultNow(),
 });
 
 export type SelectIssue = typeof issues.$inferSelect;
