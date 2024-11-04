@@ -3,6 +3,7 @@ import { columns } from "@/components/Project/columns";
 import Navbar from "@/components/Project/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { createClient } from "@/lib/supabase/server";
 import { getProject, getUser } from "@/server/db/queries/select";
 import {
   AlertTriangle,
@@ -45,7 +46,7 @@ async function getIssues() {
       priority: "High",
       assignee: "advaitjadhav",
       deadline: "2023-01-01",
-      status: "open"
+      status: "open",
     },
     {
       id: "2",
@@ -53,7 +54,7 @@ async function getIssues() {
       priority: "Medium",
       assignee: "advaitjadhav",
       deadline: "2023-01-02",
-      status: "open"
+      status: "open",
     },
     {
       id: "3",
@@ -61,7 +62,7 @@ async function getIssues() {
       priority: "Low",
       assignee: "advaitjadhav",
       deadline: "2023-01-03",
-      status: "open"
+      status: "open",
     },
     {
       id: "4",
@@ -69,7 +70,7 @@ async function getIssues() {
       priority: "High",
       assignee: "advaitjadhav",
       deadline: "2023-01-04",
-      status: "open"
+      status: "open",
     },
     {
       id: "5",
@@ -77,7 +78,7 @@ async function getIssues() {
       priority: "Medium",
       assignee: "advaitjadhav",
       deadline: "2023-01-05",
-      status: "open"
+      status: "open",
     },
   ];
 }
@@ -112,15 +113,20 @@ function OverviewCard({
 
 export default async function Page({ params }: { params: { id: string } }) {
   const issues = await getIssues();
-  const { data: projectData, error } = await getProject(params.id);
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  const { data: projectData, error: projectError } = await getProject(
+    params.id,
+  );
 
-  if (error || !projectData) {
+  if (error || !user || !projectData || projectError) {
     notFound();
   }
 
-  const { data: userData, error: userError } = await getUser(
-    projectData.created_by,
-  );
+  const { data: userData, error: userError } = await getUser(user.id);
 
   if (userError || !userData) {
     notFound();

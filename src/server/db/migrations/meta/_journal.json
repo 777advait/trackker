@@ -36,6 +36,20 @@
       "when": 1730558233702,
       "tag": "0004_icy_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1730648354395,
+      "tag": "0005_wandering_the_liberteens",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1730648911375,
+      "tag": "0006_cultured_talos",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
-import Navbar from "@/components/Project/Navbar";
 import ProjectSidebar from "@/components/Project/ProjectSidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
@@ -24,6 +24,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
           </SidebarInset>
         </SidebarProvider>
+        <Toaster />
       </body>
     </html>
   );

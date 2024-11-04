@@ -13,21 +13,13 @@ export default async function Page({ params }: { params: { id: string } }) {
     notFound();
   }
 
-  const { data: userData, error: userError } = await getUser(
-    projectData.created_by,
-  );
-
-  if (userError || !userData) {
-    notFound();
-  }
-
   return (
     <>
       <Navbar projectName={projectData.name} />
-      <Container className="max-w-[90%] py-8">
+      <Container className=" py-8">
         <div className="space-y-8">
-          <h1 className="font-labil text-4xl">Manage Settings</h1>
-          <div className="max-w-[45%] space-y-6">
+          <h1 className="font-labil text-4xl">Settings</h1>
+          <div className="max-w-[55%] space-y-6">
             <RenameCard projectName={projectData.name} projectId={params.id} />
             <DeleteCard projectName={projectData.name} projectId={params.id} />
           </div>

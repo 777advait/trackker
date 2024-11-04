@@ -1,5 +1,12 @@
 import { ServiceResponse } from "@/lib/definitions";
-import { projects, SelectProject, SelectUser, user } from "../schema";
+import {
+  members,
+  projects,
+  SelectMember,
+  SelectProject,
+  SelectUser,
+  user,
+} from "../schema";
 import { db } from "../";
 import { eq } from "drizzle-orm";
 
@@ -46,4 +53,22 @@ export async function getProject(id: string): ServiceResponse<SelectProject> {
     }
   }
   return { error: null, data: data ?? null };
+}
+
+export async function getMembers(
+  project_id: string,
+): ServiceResponse<SelectMember[]> {
+  let data: SelectMember[] = [];
+
+  try {
+    data = await db.query.members.findMany({
+      where: eq(members.project_id, project_id),
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+
+  return { error: null, data };
 }

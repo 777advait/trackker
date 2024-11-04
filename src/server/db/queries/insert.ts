@@ -1,14 +1,17 @@
 import { ServiceResponse } from "@/lib/definitions";
 import {
+  InsertIssue,
   InsertMember,
   InsertProject,
   InsertUser,
-  members,
-  projects,
+  SelectIssue,
   SelectMember,
   SelectProject,
   SelectUser,
   user,
+  issues,
+  members,
+  projects,
 } from "../schema";
 import { db } from "../";
 
@@ -58,4 +61,19 @@ export async function insertUser(
   }
 
   return { error: null, data: userData ?? null };
+}
+
+export async function insertIssue(
+  data: InsertIssue,
+): ServiceResponse<SelectIssue> {
+  let issue: SelectIssue | undefined;
+
+  try {
+    issue = (await db.insert(issues).values(data).returning())[0];
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+  return { error: null, data: issue ?? null };
 }
