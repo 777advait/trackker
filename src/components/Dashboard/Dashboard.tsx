@@ -9,44 +9,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { fetchProjects } from "@/server/actions/projects";
 import { ProjectCard } from "./ProjectCard";
-
-const recentIssues: {
-  id: number;
-  title: string;
-  status: string;
-  deadline: Date;
-}[] = [
-  {
-    id: 1,
-    title: "Issue 1",
-    status: "Open",
-    deadline: new Date(),
-  },
-  {
-    id: 2,
-    title: "Issue 2",
-    status: "Open",
-    deadline: new Date(),
-  },
-  {
-    id: 3,
-    title: "Issue 3",
-    status: "Open",
-    deadline: new Date(),
-  },
-  {
-    id: 4,
-    title: "Issue 4",
-    status: "Open",
-    deadline: new Date(),
-  },
-  {
-    id: 5,
-    title: "Issue 5",
-    status: "Open",
-    deadline: new Date(),
-  },
-];
+import { fetchRecentIssues } from "@/server/actions/issues";
 
 async function UserProjects() {
   const { data: projectsData, error: projectsError } = await fetchProjects();
@@ -83,6 +46,31 @@ async function UserProjects() {
 }
 
 export default async function Dashboard() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return (
+      <div className="py-8 text-center font-medium text-muted-foreground">
+        Error while fetching data. Please refresh or try again later.
+      </div>
+    );
+  }
+
+  const { data: recentIssues, error: recentIssuesError } =
+    await fetchRecentIssues(user.id);
+
+  if (recentIssuesError || !recentIssues || error || !user) {
+    return (
+      <div className="py-8 text-center font-medium text-muted-foreground">
+        Error while fetching data. Please refresh or try again later.
+      </div>
+    );
+  }
+
   return (
     <>
       <Container className="max-w-[90%] py-8">
@@ -123,9 +111,9 @@ export default async function Dashboard() {
                         </Link>
                         <div className="flex items-center gap-1">
                           <Badge variant="secondary">{issues.status}</Badge>
-                          <Badge variant="outline">
-                            {issues.deadline.toLocaleDateString("en-GB")}
-                          </Badge>
+                          {issues.deadline && (
+                            <Badge variant="outline">{issues.deadline}</Badge>
+                          )}
                         </div>
                       </li>
                     ))}

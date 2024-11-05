@@ -78,3 +78,18 @@ export async function deleteIssueAction(
 
   return { error: null, data: null };
 }
+
+export async function fetchRecentIssues(
+  user_id: string,
+): ServiceResponse<SelectIssue[]> {
+  const { data: issuesData, error: issuesError } = await getIssues(user_id);
+
+  if (issuesError || !issuesData) {
+    return {
+      error: issuesError ?? "Error fetching issues",
+      data: null,
+    };
+  }
+
+  return { error: null, data: issuesData };
+}

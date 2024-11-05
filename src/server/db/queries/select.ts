@@ -10,7 +10,7 @@ import {
   user,
 } from "../schema";
 import { db } from "../";
-import { count, eq, ne, sql } from "drizzle-orm";
+import { count, desc, eq, ne, sql } from "drizzle-orm";
 import { AlertTriangle, LineChart, ThumbsUp, UserPlus2 } from "lucide-react";
 
 export async function getProjects(
@@ -167,4 +167,24 @@ export async function getMetrics(project_id: string) {
   }
 
   return { error: null, data };
+}
+
+export async function getRecentIssues(
+  user_id: string,
+): ServiceResponse<SelectIssue[]> {
+  let recentIssues: SelectIssue[] = [];
+
+  try {
+    recentIssues = await db.query.issues.findMany({
+      where: eq(issues.created_by, user_id),
+      orderBy: [desc(issues.created_at)],
+      limit: 5,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, data: null };
+    }
+  }
+
+  return { error: null, data: recentIssues };
 }
